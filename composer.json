@@ -1,0 +1,26 @@
+{
+    "name": "greplab/laravel-jsonrpcsmd",
+    "type": "library",
+    "description": "This is a port of the greplab/jsonrpcsmd library for laravel 4.2.",
+    "homepage": "",
+    "license": "MIT",
+    "keywords": ["json","rpc","json-rpc","jsonrpc","smd","service","mapping","description"],
+    "authors": [
+        {
+            "name": "Daniel Zegarra",
+            "email": "dzegarra@greplab.com",
+            "homepage": "http://danielzegarra.info"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
+        "greplab/jsonrpcsmd": "0.*.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Greplab\\LaravelJsonrpcsmd": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
