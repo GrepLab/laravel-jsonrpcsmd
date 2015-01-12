@@ -1,12 +1,13 @@
 <?php
 return array(
     /**
-     * Ruta del servicio smd.
+     * Route que va a disparar la generación del mapa de servicios.
      * @type string
      */
-    'route_prefix' => 'api/jsonrpc',
+    'route_prefix' => 'api/jsonrpcsmd',
     /**
-     * Ruta para ejecutar llamadas remotas.
+     * Route utilizado para ejecutar las llamadas remotas.
+     * Este será indicado en el mapa generado.
      * @type string
      */
     'route_api' => 'api/jsonrpc',
@@ -16,15 +17,11 @@ return array(
      */
     'allowed_extensions' => array('php'),
     /**
-     * Mostrar el nombre del servicio y el m�todo en el URL.
+     * Generar un URL distinto para cada método y servicio.
+     * El nombre del servicio y el método estará incluido en el URL.
      * @type boolean
      */
     'use_canonical' => false,
-    /**
-     * Directorios de servicios por defecto.
-     * @type string[]
-     */
-    'service_paths' => array('/services'),
     /**
      * Lanzar un error si un directorio de servicios no es encontrado.
      * @type boolean

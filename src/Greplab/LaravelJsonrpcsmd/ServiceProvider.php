@@ -16,32 +16,30 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 */
 	public function boot()
 	{
+		//Instalar automáticamente el route
+		if (\Config::get('jsonrpcsmd::installRouteOnBoot')) {
+			$this->installDefaultRoute();
+		}
+	}
+
+	/**
+	 * Register the service provider.
+	 * @return void
+	 */
+	public function register() {
 		$this->package('greplab/jsonrpcsmd');
 
 		//Alias de esta instancia
 		\App::instance('JsonRpcSmd', $this);
 
-		//Mapeador de servicios
+		//Instancio el mapeador de servicios
 		\App::singleton('Greplab\LaravelJsonrpcsmd\Mapper', function() {
 			return new \Greplab\LaravelJsonrpcsmd\Mapper;
 		});
-
-		//Definir route
-		if (\Config::get('jsonrpcsmd::installRouteOnBoot')) {
-			$this->installDefaultRoute();
-		}
-		
 	}
 
 	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register() {}
-
-	/**
-	 * Register the route for the smd map.
+	 * Register the default route.
 	 */
 	public function installDefaultRoute()
 	{
@@ -49,7 +47,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	}
 
 	/**
-	 * Register the route for the smd map.
+	 * Register a customized route.
 	 * @param string $route_prefix
 	 */
 	public function installRoute($route_prefix)
