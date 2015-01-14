@@ -3,7 +3,7 @@
 use \Greplab\Jsonrpcsmd\Smd;
 
 /**
- * Prepara la libreria SMD para inventariar los servicios.
+ * Prepare the Json-RPC SMD library for index the services.
  * 
  * @author Daniel Zegarra <dzegarra@greplab.com>
  */
@@ -16,15 +16,12 @@ class Mapper
     protected $paths;
 
     /**
-     * Constructor
-     *
-     * Setup server description
+     * Constructor.
      */
     public function __construct()
     {
         $this->allowed_extensions = $allowed_extensions = \Config::get('jsonrpcsmd::allowed_extensions', array('php'));
         $this->throwIfPathNotExist = \Config::get('jsonrpcsmd::throwIfPathNotExist');
-        $this->paths = \Config::get('jsonrpcsmd::service_paths');
 
         $this->smd = new Smd();
         $this->smd->setTarget(\Config::get('jsonrpcsmd::route_api'));
@@ -48,11 +45,11 @@ class Mapper
             
             if (is_dir($path . DIRECTORY_SEPARATOR . $file)) {
                 $dir = $this->listFilesInDir($path . DIRECTORY_SEPARATOR . $file);
-                foreach ($dir as $dfile) {
-                    $files[] = $file . DIRECTORY_SEPARATOR . $dfile;
+                foreach ($dir as $d_file) {
+                    $files[] = $file . DIRECTORY_SEPARATOR . $d_file;
                 }
             } else {
-                // Solo archivos con extension permitidos
+                // Only files with allowed extensions
                 $parts = explode('.', $file);
                 if (count($parts) > 0 && in_array($parts[count($parts) - 1], $this->allowed_extensions)) {
                     $files[] = $file;
@@ -64,17 +61,17 @@ class Mapper
     }
     
     /**
-     * Recibe el nombre de un archivo y devuelve el nombre de una clase.
+     * Receive a file name and return the name of the class.
      *
-     * @param string $file
-     * @param string $ns
-     * @return string
+     * @param string $file Name of file
+     * @param string $ns Namespace of the class
+     * @return string Full class name
      */
     public function filenameToClassname($file, $ns)
     {
         $str = str_replace(DIRECTORY_SEPARATOR, '\\', $file);
 
-        //Extrayendo la extensión del archivo
+        //Extracting the extension of the file
         $parts = explode('.', $str);
         if (count($parts) > 1) {
             array_pop($parts);
@@ -89,27 +86,31 @@ class Mapper
     }
 
     /**
-     * Obtiene la ruta absoluta.
+     * Return the absolute path of one file.
      * 
-     * @throws PathNotExistException
+     * @throws Exceptions\PathNotExistException
      * @param string $path
      * @return string
      */
     protected function getRealPath($path)
     {
+        $real_path = null;
         if (file_exists($path)) {
-            return $path;
+            $real_path = $path;
         } else if (file_exists(app_path() . $path)) {
-            return app_path() . $path;
+            $real_path = app_path() . $path;
         } else if ($this->throwIfPathNotExist) {
             throw new Exceptions\PathNotExistException($path);
         }
+        return $real_path;
     }
-    
+
     /**
-     * Return an indexed array with the filenames found.
-     * 
+     * Return an indexed array with the names of files found.
+     *
+     * @param string $path
      * @return array
+     * @throws Exceptions\PathNotExistException
      */
     protected function listServiceFilesIn($path)
     {
@@ -121,7 +122,7 @@ class Mapper
      * Throw an exception if the class passed not exist.
      * This method try to load the class dynamically. The throw is fire if the class can't be found by the autoloader.
      * 
-     * @throws ClassNotFoundException
+     * @throws Exceptions\ClassNotFoundException
      * @param string $classname
      * @param string $file
      */
@@ -133,10 +134,10 @@ class Mapper
     }
     
     /**
-     * Indexa todos los servicios que se encuentren en el directorio especificado.
+     * Search for the files in the directory passed as an argument.
      * 
-     * @param string $path
-     * @param string $ns
+     * @param string $path The directory full of services
+     * @param string $ns The namespace prefix
      */
     protected function indexServicePath($path, $ns='') 
     {
@@ -154,7 +155,7 @@ class Mapper
     /**
      * Build the map of services and methods.
      * 
-     * @return \Greplab\Jsonrpcsmd\Mapper
+     * @return \Greplab\LaravelJsonrpcsmd\Mapper
      */
     public function build()
     {
@@ -169,10 +170,10 @@ class Mapper
     }
 
     /**
-     * Agrega una nueva ruta de servicios que deben ser indexados.
+     * Register a new path of services for be indexed.
      * 
-     * @param string $path
-     * @param string $ns
+     * @param string $path Directory path of services
+     * @param string $ns Namespace prefix
      */
     public function addServicePath($path, $ns='')
     {
@@ -196,7 +197,7 @@ class Mapper
     }
 
     /**
-     * Entrega el mapa en formato json.
+     * Return the map un json format.
      * 
      * @return string
      */
@@ -207,7 +208,12 @@ class Mapper
 		//$smdArray['namespace'] = SRVMAP_JSNAMESPACE;
 		return (string) $this->getSmd();
     }
-    
+
+    /**
+     * Return the map un json format.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->toJson();

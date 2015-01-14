@@ -1,4 +1,4 @@
-<?php namespace Greplab\Romeo\Exceptions;
+<?php namespace Greplab\LaravelJsonrpcsmd\Exceptions;
 
 class PathNotExistException extends \Exception
 {

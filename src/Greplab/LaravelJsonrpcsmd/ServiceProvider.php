@@ -4,19 +4,25 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
 	 * Indicates if loading of the provider is deferred.
-	 *
 	 * @var bool
 	 */
 	protected $defer = false;
 
 	/**
+	 * List of paths where the services reside.
+	 * @var array
+	 */
+	protected $paths = array();
+
+	/**
 	 * Bootstrap the application events.
-	 *
 	 * @return void
 	 */
 	public function boot()
 	{
-		//Instalar automáticamente el route
+		$this->package('greplab/jsonrpcsmd');
+
+		//Install the route on boot
 		if (\Config::get('jsonrpcsmd::installRouteOnBoot')) {
 			$this->installDefaultRoute();
 		}
@@ -27,15 +33,17 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 * @return void
 	 */
 	public function register() {
-		$this->package('greplab/jsonrpcsmd');
 
-		//Alias de esta instancia
 		\App::instance('JsonRpcSmd', $this);
+	}
 
-		//Instancio el mapeador de servicios
-		\App::singleton('Greplab\LaravelJsonrpcsmd\Mapper', function() {
-			return new \Greplab\LaravelJsonrpcsmd\Mapper;
-		});
+	/**
+	 * Register a new path service to index.
+	 * @param string $path
+	 */
+	public function addServicesPath($path)
+	{
+		$this->paths[] = $path;
 	}
 
 	/**
@@ -54,8 +62,19 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	{
 	    \Route::get($route_prefix, function()
         {
-            return \App::make('Greplab\LaravelJsonrpcsmd\Mapper')->build();
+            $this->build();
         });
 	}
 
+	/**
+	 * @return mixed
+	 */
+	public function build()
+	{
+		$mapper = \App::make('Greplab\LaravelJsonrpcsmd\Mapper');
+		foreach ($this->paths as $path) {
+			$mapper->addServicePath($path);
+		}
+		return $mapper->build();
+	}
 }
