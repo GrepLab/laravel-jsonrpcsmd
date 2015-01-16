@@ -1,5 +1,11 @@
 <?php namespace Greplab\LaravelJsonrpcsmd;
 
+/**
+ * This class is the service provider for Laravel to easily use the greplab/jsonrpcsmd library.
+ *
+ * @author Daniel Zegarra <dzegarra@greplab.com>
+ * @package Greplab\LaravelJsonrpcsmd
+ */
 class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
@@ -9,7 +15,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	protected $defer = false;
 
 	/**
-	 * List of paths where the services reside.
+	 * List of paths where the services files reside.
 	 * @var array
 	 */
 	protected $paths = array();
@@ -32,13 +38,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 * Register the service provider.
 	 * @return void
 	 */
-	public function register() {
-
+	public function register()
+	{
 		\App::instance('JsonRpcSmd', $this);
 	}
 
 	/**
-	 * Register a new path service to index.
+	 * Register a new path service to be indexed.
 	 * @param string $path
 	 */
 	public function addServicesPath($path)
@@ -67,7 +73,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	}
 
 	/**
-	 * @return mixed
+	 * Build the service map.
+	 * @return array
 	 */
 	public function build()
 	{
