@@ -9,25 +9,45 @@ use \Greplab\Jsonrpcsmd\Smd;
  */
 class Mapper
 {
-
     protected $smd;
     protected $allowed_extensions;
     protected $throwIfPathNotExist;
-    protected $paths;
+    protected $paths = array();
+    protected $validator = null;
 
     /**
      * Constructor.
      */
     public function __construct()
     {
-        $this->allowed_extensions = $allowed_extensions = \Config::get('jsonrpcsmd::allowed_extensions', array('php'));
-        $this->throwIfPathNotExist = \Config::get('jsonrpcsmd::throwIfPathNotExist');
+        $this->loadConfig();
 
         $this->smd = new Smd();
-        $this->smd->setTarget(\Config::get('jsonrpcsmd::route_api'));
+        $this->smd->setTarget($this->getTarget());
         $this->smd->setUseCanonical(\Config::get('jsonrpcsmd::use_canonical'));
     }
-    
+
+    /**
+     * Cargar parámetros de configuración.
+     */
+    protected function loadConfig()
+    {
+        $this->allowed_extensions = $allowed_extensions = \Config::get('jsonrpcsmd::allowed_extensions', array('php'));
+        $this->throwIfPathNotExist = \Config::get('jsonrpcsmd::throwIfPathNotExist');
+        $this->validator = \Config::get('jsonrpcsmd::serviceValidator');
+        if (!is_callable($this->validator))  $this->validator =  null;
+    }
+
+    /**
+     * Return the URL of the target.
+     * @return string
+     */
+    protected function getTarget()
+    {
+        $route = \Config::get('jsonrpcsmd::route_api');
+        return url($route);
+    }
+
     /**
      * Return an indexed array with the names of files in the directory passed. 
      *
@@ -139,17 +159,37 @@ class Mapper
      * @param string $path The directory full of services
      * @param string $ns The namespace prefix
      */
-    protected function indexServicePath($path, $ns='') 
+    protected function indexServicePath($path, $ns=null)
     {
+        if (!is_null($ns)) {
+            $ns_path = str_replace('\\', DIRECTORY_SEPARATOR, $ns);
+            $path.= DIRECTORY_SEPARATOR . $ns_path;
+        }
+
         $files = $this->listServiceFilesIn($path);
 
         foreach($files as $key=>$file){
             $classname = $this->filenameToClassname($file, $ns);
-
-            $this->throwIfClassNotExist($classname, $file);
-
-            $this->smd->addClass($classname);
+            if ($this->isValid($classname, $file)) {
+                $this->throwIfClassNotExist($classname, $file);
+                $this->smd->addClass($classname);
+            }
         }
+    }
+
+    /**
+     * Validate if the service has to be indexed.
+     *
+     * @param string $classname
+     * @param string $file
+     * @return bool
+     */
+    protected function isValid($classname, $file)
+    {
+        if ($this->validator && call_user_func_array($this->validator, [$classname, $file]) === false) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -161,7 +201,7 @@ class Mapper
     {
         foreach ($this->paths as $path) {
             if (is_array($path)) {
-                $this->indexServicePath($path[1], $path[0]);
+                $this->indexServicePath($path[0], $path[1]);
             } else {
                 $this->indexServicePath($path);
             }
@@ -175,12 +215,12 @@ class Mapper
      * @param string $path Directory path of services
      * @param string $ns Namespace prefix
      */
-    public function addServicePath($path, $ns='')
+    public function addServicePath($path, $ns=null)
     {
         if (empty($path)) return;
 
         if (!empty($ns)) {
-            $path = array($ns, $path);
+            $path = array($path, $ns);
         }
 
         array_push($this->paths, $path);

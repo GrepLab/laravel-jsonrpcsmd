@@ -23,13 +23,22 @@ return array(
      */
     'use_canonical' => false,
     /**
-     * Lanzar un error si un directorio de servicios no es encontrado.
+     * Throw an error if une class is not found.
      * @type boolean
      */
     'throwIfPathNotExist' => false,
     /**
-     * Indica si se debe instalar el route inmediatamente cuando se cargue el service provider.
+     * The route have to be install when the library is loaded.
      * @type boolean
      */
-    'installRouteOnBoot' => true
+    'installRouteOnBoot' => true,
+    /**
+     * Validator of services.
+     * This closure is used to validate each class founded in the services path. This way you can limit the classes to
+     * index.
+     * @type closure
+     */
+    'serviceValidator' => function($classname, $file) {
+        return ends_with($classname, 'Service');
+    }
 );

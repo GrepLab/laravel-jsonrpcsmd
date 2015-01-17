@@ -46,10 +46,12 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	/**
 	 * Register a new path service to be indexed.
 	 * @param string $path
+	 * @param string $ns Namespace of the library path
 	 */
-	public function addServicesPath($path)
+	public function addServicesPath($path, $ns=null)
 	{
-		$this->paths[] = $path;
+		\Debugbar::info(get_class($this).'::addServicesPath('.$path.', '.$ns.');');
+		$this->paths[] = array($path, $ns);
 	}
 
 	/**
@@ -68,7 +70,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	{
 	    \Route::get($route_prefix, function()
         {
-            $this->build();
+            return $this->build();
         });
 	}
 
@@ -80,7 +82,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	{
 		$mapper = \App::make('Greplab\LaravelJsonrpcsmd\Mapper');
 		foreach ($this->paths as $path) {
-			$mapper->addServicePath($path);
+			$mapper->addServicePath($path[0], $path[1]);
 		}
 		return $mapper->build();
 	}
