@@ -190,21 +190,6 @@ class Mapper
     }
 
     /**
-     * Validate if the service has to be indexed.
-     *
-     * @param string $classname
-     * @param string $file
-     * @return bool
-     */
-    protected function isValid($classname, $file)
-    {
-        if ($this->validator && call_user_func_array($this->validator, [$classname, $file]) === false) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Build the map of services and methods.
      * 
      * @return \Greplab\LaravelJsonrpcsmd\Mapper
