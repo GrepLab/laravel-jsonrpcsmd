@@ -95,6 +95,26 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 		foreach ($this->paths as $path) {
 			$mapper->addServicePath($path[0], $path[1]);
 		}
-		return $mapper->build();
+		$mapper->build();
+		return $this->outputResult($mapper);
+	}
+
+	/**
+	 * Dump to the buffer the data pass as an argument.
+	 *
+	 * @param $result
+	 * @return \Illuminate\Http\Response
+	 */
+	protected function outputResult($result)
+	{
+		if (is_object($result) && $result instanceof \Greplab\LaravelJsonrpcsmd\Mapper) {
+			$result = $result->toJson();
+		}else if (is_array($result) || is_object($result)) {
+			$result = json_encode($result);
+		}
+
+		$r = \Response::make($result, 200);
+		$r->header('Content-Type', 'application/json; charset=UTF-8');
+		return $r;
 	}
 }
