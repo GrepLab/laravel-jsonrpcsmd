@@ -9,11 +9,16 @@ use \Greplab\Jsonrpcsmd\Smd;
  */
 class Mapper
 {
+    /**
+     * Instancia de la clase Smd
+     *
+     * @var Smd
+     */
     protected $smd;
     protected $allowed_extensions;
-    protected $throwIfPathNotExist;
+    protected $throw_if_path_not_exist;
     protected $paths = array();
-    protected $validator = null;
+    protected $service_validator = null;
 
     /**
      * Constructor.
@@ -22,20 +27,29 @@ class Mapper
     {
         $this->loadConfig();
 
-        $this->smd = new Smd();
-        $this->smd->setTarget($this->getTarget());
-        $this->smd->setUseCanonical(\Config::get('jsonrpcsmd::use_canonical'));
+        $this->buildSmd();
     }
 
     /**
-     * Cargar parámetros de configuración.
+     * Load configuration parameters for this class.
      */
     protected function loadConfig()
     {
         $this->allowed_extensions = $allowed_extensions = \Config::get('jsonrpcsmd::allowed_extensions', array('php'));
-        $this->throwIfPathNotExist = \Config::get('jsonrpcsmd::throwIfPathNotExist');
-        $this->validator = \Config::get('jsonrpcsmd::serviceValidator');
-        if (!is_callable($this->validator))  $this->validator =  null;
+        $this->throw_if_path_not_exist = \Config::get('jsonrpcsmd::throw_if_path_not_exist');
+    }
+
+    /**
+     * Create and initialize an instance of the class {@link Smd}.
+     * This method also apply some configuration to the Smd library.
+     */
+    protected function buildSmd()
+    {
+        $this->smd = new Smd();
+        $this->smd->setTarget($this->getTarget());
+        $this->smd->setUseCanonical(\Config::get('jsonrpcsmd::use_canonical'));
+        $this->smd->setServiceValidator(\Config::get('jsonrpcsmd::service_validator'));
+        $this->smd->setNameResolver(\Config::get('jsonrpcsmd::name_resolver'));
     }
 
     /**
@@ -119,7 +133,7 @@ class Mapper
             $real_path = $path;
         } else if (file_exists(app_path() . $path)) {
             $real_path = app_path() . $path;
-        } else if ($this->throwIfPathNotExist) {
+        } else if ($this->throw_if_path_not_exist) {
             throw new Exceptions\PathNotExistException($path);
         }
         return $real_path;
@@ -170,10 +184,8 @@ class Mapper
 
         foreach($files as $key=>$file){
             $classname = $this->filenameToClassname($file, $ns);
-            if ($this->isValid($classname, $file)) {
-                $this->throwIfClassNotExist($classname, $file);
-                $this->smd->addClass($classname);
-            }
+            $this->throwIfClassNotExist($classname, $file);
+            $this->smd->addClass($classname);
         }
     }
 
@@ -246,7 +258,7 @@ class Mapper
 		//Armando respuesta
 		//$smdArray['type'] = 'jsonrpc';
 		//$smdArray['namespace'] = SRVMAP_JSNAMESPACE;
-		return (string) $this->getSmd();
+		return (string) $this->smd;
     }
 
     /**
@@ -258,4 +270,5 @@ class Mapper
     {
         return $this->toJson();
     }
+
 }

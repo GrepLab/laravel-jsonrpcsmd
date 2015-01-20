@@ -10,18 +10,25 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
 	 * Indicates if loading of the provider is deferred.
+	 *
 	 * @var bool
 	 */
 	protected $defer = false;
 
 	/**
 	 * List of paths where the services files reside.
+	 *
 	 * @var array
 	 */
 	protected $paths = array();
 
 	/**
 	 * Bootstrap the application events.
+	 *
+	 * This method also register the route if the "install_route_on_boot" parameter is set on TRUE.
+	 * If you doen't want to install the route during boot you have to change de value of the parameter
+	 * "install_route_on_boot" to false before boot this service provider.
+	 *
 	 * @return void
 	 */
 	public function boot()
@@ -36,6 +43,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
 	 * Register the service provider.
+	 *
 	 * @return void
 	 */
 	public function register()
@@ -45,6 +53,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
 	 * Register a new path service to be indexed.
+	 *
 	 * @param string $path
 	 * @param string $ns Namespace of the library path
 	 */
@@ -64,6 +73,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
 	 * Register a customized route.
+	 *
 	 * @param string $route_prefix
 	 */
 	public function installRoute($route_prefix)
@@ -76,6 +86,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	/**
 	 * Build the service map.
+	 *
 	 * @return array
 	 */
 	public function build()
