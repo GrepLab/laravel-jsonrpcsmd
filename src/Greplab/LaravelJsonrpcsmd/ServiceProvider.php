@@ -36,7 +36,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 		$this->package('greplab/jsonrpcsmd');
 
 		//Install the route on boot
-		if (\Config::get('jsonrpcsmd::installRouteOnBoot')) {
+		if (\Config::get('jsonrpcsmd::install_route_on_boot')) {
 			$this->installDefaultRoute();
 		}
 	}
@@ -48,7 +48,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 */
 	public function register()
 	{
-		\App::instance('JsonRpcSmd', $this);
+		//Every time you try to instance the class "JsonRpcSmdPort" you get $this
+		\App::instance('JsonRpcSmdPort', $this);
 	}
 
 	/**
@@ -57,9 +58,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 * @param string $path
 	 * @param string $ns Namespace of the library path
 	 */
-	public function addServicesPath($path, $ns=null)
+	public function addServicePath($path, $ns=null)
 	{
-		\Debugbar::info(get_class($this).'::addServicesPath('.$path.', '.$ns.');');
 		$this->paths[] = array($path, $ns);
 	}
 

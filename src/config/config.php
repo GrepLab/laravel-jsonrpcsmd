@@ -35,7 +35,8 @@ return array(
      * The route have to be install when the library is loaded.
      * @type boolean
      */
-    'installRouteOnBoot' => true,
+    'install_route_on_boot' => true,
+
     /**
      * Validator of services.
      * This closure is used to validate each class founded in the services path. This way you can limit the classes for
@@ -45,7 +46,17 @@ return array(
      * The return has to be TRUE for the class be indexed and FALSE if the class has to be ignored.
      * @type closure
      */
-    'serviceValidator' => function($classname, $file) {
+    'service_validator' => function(\ReflectionClass $reflectedclass) {
+        $classname = $reflectedclass->getName();
         return ends_with($classname, 'Service');
-    }
+    },
+
+    /**
+     * Closure to customize the visible name of the service.
+     * This closure is useful if you want make changes to the name of the class visible in the service map.
+     * The closure only have one argument. An instance of Greplab\Jsonrpcsmd\Smd\Service class.
+     * This closure has to return the name of the service (including its namespace).
+     * @type closure
+     */
+    'name_resolver' => null
 );
